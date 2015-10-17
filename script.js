@@ -15,71 +15,62 @@ function appendToCommand() {
 	cmdline.innerHTML = expression.join('');
 }
 
-function evaluateExpression(expression) {
-	alert('ran');
-	if (expression != null) {
-		alert('iniff');
-		var splitter = /(\+|\-|\/|\*)/g;
-		console.log(expression.join('').split(splitter));
+function doIfPossible(test, func) {
+	if (test) {
+		func(cmdline.innerHTML);
+	} else {
+		cmdline.innerHTML = "ERR";
+		expression = [];
 	}
 }
 
 function operation() {
 	switch (this.innerHTML) {
 		case '<small>MC</small>':
+			memNum = null;
 			cmdline.innerHTML = expression = [];
 			break;
 		case '<small>MR</small>':
-			if (!isNaN(memNum)) {
-				expression.push(memNum);
-				cmdline.innerHTML = expression.join('');
-			} else {
-				cmdline.innerHTML = "ERR";
-			}
+			doIfPossible(!isNaN(memNum) && memNum != null, function(){
+				cmdline.innerHTML = 'M' + memNum;
+			});
 			break;
 		case '<small>MS</small>':
-			if (!isNaN(expression.join(''))) {
-				memNum = parseInt(expression.join(''));
-				cmdline.innerHTML = expression = [];
-				console.log(memNum);
-			} else {
-				cmdline.innerHTML = "ERR";
-			}
+			doIfPossible(!isNaN(expression.join('')), function(){
+					memNum = parseFloat(expression.join(''));
+					cmdline.innerHTML = expression = [];
+			});
 			break;
 		case '<small>M+</small>':
-			console.log(expression.join(''));
-			if (!isNaN(memNum) && !isNaN(expression.join(''))) {
-				cmdline.innerHTML = expression = [];
-				memNum = memNum + parseInt(expression.join(''));
-			} else {
-				cmdline.innerHTML = "ERR";
-			}
+			doIfPossible(!isNaN(memNum) && !isNaN(expression.join('')), function(){
+					memNum = memNum + parseFloat(expression.join(''));
+					cmdline.innerHTML = expression = [];
+			});
 			break;
 		case '<small>M-</small>':
-			if (!isNaN(memNum) && !isNaN(expression.join(''))) {
-				cmdline.innerHTML = expression = []
-				memNum = memNum - parseInt(expression.join(''));
-			} else {
-				cmdline.innerHTML = "ERR";
-			}
+			doIfPossible(!isNaN(memNum) && !isNaN(expression.join('')), function(){
+					memNum = memNum - parseFloat(expression.join(''));
+					cmdline.innerHTML = expression = [];
+			});
 			break;
 		case '%':
-			if (!isNaN(expression.join(''))) {
-				cmdline.innerHTML = parseInt(expression.join(''))/100;
-			} else {
-				cmdline.innerHTML = "ERR";
-			}
+			doIfPossible(!isNaN(expression.join('')), function(){
+					cmdline.innerHTML = expression = [parseFloat(expression.join(''))/100];
+			});
 			break;
 		case '<small>1/<em>x</em></small>':
-			if (!isNaN(expression.join(''))) {
-				cmdline.innerHTML = 1/parseInt(expression.join(''));
-			} else {
-				cmdline.innerHTML = "ERR";
-			}
+			doIfPossible(!isNaN(expression.join('')), function(){
+					cmdline.innerHTML = expression = [1/parseFloat(expression.join(''))];
+			});
 			break;
 		case '<br>=<br>&nbsp;':
-			alert('clicked');
-			evaluateExpression(expression);
+		try {
+			cmdline.innerHTML = eval(expression.join(''));
+				expression = [];
+			} catch (e) {
+				cmdline.innerHTML = "ERR";
+				expression = [];
+			}	
 			break;
 		default:
 	}
